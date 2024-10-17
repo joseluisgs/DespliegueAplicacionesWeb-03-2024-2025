@@ -1,0 +1,46 @@
+services:
+
+  nginx:
+    image: ubuntu/nginx # imagen de Nginx
+    container_name: nginx_server # nombre del contenedor
+    # ports:
+    #  - "8081:80" # mapeo de puertos  HTTP
+    volumes:
+      - ./nginx/sites-available:/etc/nginx/sites-available # archivos de configuración de hosts virtuales
+      - ./nginx/website:/var/www/html/ # directorio de los sitios web
+    restart: always # reinicio automático
+    networks:
+      - webnet # red de contenedores
+
+  apache:
+    image: ubuntu/apache2 # imagen de Apache
+    container_name: apache_server # nombre del contenedor
+    # ports:
+    #  - "8082:80" # mapeo de puertos  HTTP
+    volumes:
+      - ./apache/sites-available:/etc/apache2/sites-available # archivos de configuración de hosts virtuales
+      - ./apache/website:/var/www/html/ # directorio de los sitios web
+      - ./apache/htpasswd/.htpasswd:/etc/apache2/.htpasswd # archivo de contraseñas (en este caso lo uso)
+    restart: always # reinicio automático
+    networks:
+      - webnet # red de contenedores
+
+  proxy:
+    image: ubuntu/nginx # imagen de Nginx
+    container_name: proxy_server # nombre del contenedor
+    ports:
+      - "80:80" # mapeo de puertos  HTTP
+      - "443:443" # mapeo de puertos  HTTPS
+    volumes:
+      - ./proxy/conf/nginx.conf:/etc/nginx/nginx.conf # archivo de configuración principal
+      - ./proxy/certs:/etc/nginx/certs # directorio de certificados (hechos con openssl)
+    restart: always # reinicio automático
+    depends_on:
+      - apache # dependencia de Apache
+      - nginx # dependencia de Nginx
+    networks:
+      - webnet # red de contenedores
+
+networks:
+  webnet:
+  

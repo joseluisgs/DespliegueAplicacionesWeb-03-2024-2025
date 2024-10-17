@@ -1,0 +1,5 @@
+AuthType Basic
+AuthName "Acceso Restringido a Usuarios"
+AuthUserFile /etc/apache2/.htpasswd
+Require valid-user
+Options -Indexes

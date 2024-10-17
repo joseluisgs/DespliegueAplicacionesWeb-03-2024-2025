@@ -1,0 +1,31 @@
+server {
+    listen 80;
+    listen [::]:80;
+
+    root /var/www/html/dominio-one.com; # Ruta de la carpeta raíz del dominio
+    index index.html; # Archivo por defecto
+
+    # Configuración para la raíz
+    location / {
+        try_files $uri $uri/ /index.html; # Intenta servir el archivo solicitado, si no existe, sirve
+    }
+
+    # Configuración para /one
+    location /one {
+        try_files $uri $uri/ /index.html; # Intenta servir el archivo solicitado, si no existe, sirve index.html
+    }
+
+    # Personalizar la página de error 404
+    error_page 404 /error_404.html;
+    location = /error_404.html {
+        root /var/www/html/dominio-one.com; # Ruta donde se encuentra el archivo de error
+        internal; # Asegura que la página de error no sea accesible directamente
+    }
+
+    # la página de error 500
+    error_page 500 502 503 504 /error_500.html;
+    location = /error_500.html {
+        root /var/www/html/dominio-one.com; # Ruta donde se encuentra el archivo de error
+        internal; # Asegura que la página de error no sea accesible directamente
+    }
+}
