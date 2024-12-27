@@ -1,0 +1,8 @@
+FROM openjdk:21-jdk
+
+# Copia el archivo .jar de tu aplicación al contenedor, cuidado donde esta por ejemplo si
+# esta en un directorio target, lo copiará al directorio raíz del contenedor (Gradle o Maven)
+COPY build/libs/untitled-1.0-SNAPSHOT.jar myapp.jar
+
+# Define el comando para ejecutar tu aplicación
+ENTRYPOINT ["java","-jar","/myapp.jar"]

@@ -1,0 +1,8 @@
+FROM nginx:latest
+
+# Elimina el contenido predeterminado de Nginx
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copia un archivo index.html vacío (opcional)
+# Esto es solo si necesitas un archivo inicial
+# COPY index.html /usr/share/nginx/html/

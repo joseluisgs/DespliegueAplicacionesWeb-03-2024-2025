@@ -1,0 +1,97 @@
+# Servicios de almacenamiento de datos
+# Desarrollo
+services:
+
+  # App Java
+  java-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: java-app
+    networks:
+      - java-network
+    volumes:
+      - reports-tests-volume:/app/reports/tests # Volumen para almacenar los reportes de los tests
+      - reports-coverage-volume:/app/reports/coverage # Volumen para almacenar los reportes de cobertura
+      - documentation-volume:/app/documentation # Volumen para almacenar la documentación
+      - html-volume:/app/html # Volumen para almacenar la presentación de la aplicación
+
+  # Servicio Nginx para la presentacion de la aplicación
+  nginx-index:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: nginx-index
+    networks:
+      - java-network
+    volumes:
+      - html-volume:/usr/share/nginx/html
+    ports:
+      - "8080:80"
+    depends_on:
+      - java-app
+
+  # Servicio Nginx para mostrar la documentación
+  nginx-documentation:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: nginx-documentation
+    networks:
+      - java-network
+    volumes:
+      - documentation-volume:/usr/share/nginx/html
+    ports:
+      - "8081:80"
+    depends_on:
+      - java-app
+    # entrypoint: /bin/sh -c "sleep 10; nginx -g 'daemon off;'" # Espera 10 segundos para iniciar Nginx
+
+  # Servicio Nginx para mostrar los reportes de los tests
+  nginx-reports-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: nginx-reports-tests
+    networks:
+      - java-network
+    volumes:
+      - reports-tests-volume:/usr/share/nginx/html
+    ports:
+      - "8082:80"
+    depends_on:
+      - java-app
+      - nginx-index
+      - nginx-documentation
+
+  # Servicio Nginx para mostrar los reportes de cobertura
+  nginx-reports-coverage:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: nginx-reports-coverage
+    networks:
+      - java-network
+    volumes:
+      - reports-coverage-volume:/usr/share/nginx/html
+    ports:
+      - "8083:80"
+    depends_on:
+      - java-app
+      - nginx-index
+      - nginx-documentation
+      - nginx-reports-tests
+
+networks:
+  java-network:
+    driver: bridge
+
+volumes:
+  reports-tests-volume:
+    driver: local
+  reports-coverage-volume:
+    driver: local
+  documentation-volume:
+    driver: local
+  html-volume:
+    driver: local
